@@ -26,11 +26,20 @@ class App extends React.Component {
       cost: 0,
       startDate: new Date(),
       res: 0,
+      mortgageRes: 0,
       showModal: false,
+      housePrice: 0,
+      deposit: 0,
+      mortgageIntRate: 0,
+      loanTerms: 0,
+      mortgageType: "fi",
+      showMortgageModal: false,
     };
     this.handleChange = this.handleChange.bind(this);
     this.sendData = this.sendData.bind(this);
+    this.sendDataMortgageData = this.sendDataMortgageData.bind(this);
     this.closeModal = this.closeModal.bind(this);
+    this.closeMortgageModal = this.closeMortgageModal.bind(this);
     this.clearData = this.clearData.bind(this);
     this.handleChangePlannedPurchasedDate = this.handleChangePlannedPurchasedDate.bind(
       this
@@ -61,6 +70,9 @@ class App extends React.Component {
     this.setState({ showModal: false });
     this.clearData();
   }
+  closeMortgageModal() {
+    this.setState({ showMortgageModal: false });
+  }
 
   clearData() {
     this.setState({
@@ -73,6 +85,32 @@ class App extends React.Component {
 
   convertDate(date) {
     return parseInt(date.toISOString().slice(0, 10).replace(/-/g, ""));
+  }
+
+  async sendDataMortgageData(event) {
+    event.preventDefault();
+    const data = {
+      housePrice: parseInt(this.state.housePrice),
+      deposit: parseInt(this.state.deposit),
+      mortgageIntRate: parseInt(this.state.mortgageIntRate) / 100,
+      loanTerms: parseInt(this.state.loanTerms),
+    };
+    console.log(data);
+    let results;
+    try {
+      results = await axios.post(
+        `https://notre-finances.herokuapp.com/MortgageMonthlyPayments/${this.state.mortgageType}`,
+        data,
+        {
+          "Content-Type": "application/json",
+        }
+      );
+    } catch (error) {
+      console.log(`😱 Axios request failed: ${error}`);
+    }
+    if (results.status === 200) {
+      this.setState({ mortgageRes: results.data, showMortgageModal: true });
+    }
   }
 
   async sendData(event) {
@@ -196,6 +234,78 @@ class App extends React.Component {
 
           <button onClick={this.closeModal}>close</button>
         </Modal>
+
+        <div className="container">
+          <form onSubmit={this.sendDataMortgageData}>
+            <label>
+              House Price:
+              <input
+                placeholder="50000"
+                type="number"
+                name="housePrice"
+                value={this.state.housePrice}
+                onChange={this.handleChange}
+              />
+            </label>
+            <label>
+              Deposit Amount:
+              <input
+                placeholder="5000"
+                type="number"
+                name="deposit"
+                value={this.state.deposit}
+                onChange={this.handleChange}
+              />
+            </label>
+            <label>
+              Mortgage Interest Rate (%):
+              <input
+                placeholder="2"
+                type="number"
+                name="mortgageIntRate"
+                value={this.state.mortgageIntRate}
+                onChange={this.handleChange}
+              />
+            </label>
+            <label>
+              Mortgage Length (Years):
+              <input
+                placeholder="30"
+                type="number"
+                name="loanTerms"
+                value={this.state.loanTerms}
+                onChange={this.handleChange}
+              />
+            </label>
+            <label>
+              <select name='mortgageType' onChange={this.handleChange}>
+                <option value="io">Interest Only</option>
+                <option value="fi">Fixed Interest</option>
+              </select>
+            </label>
+            <input type="submit" value="Submit" />
+          </form>
+          <Modal
+            isOpen={this.state.showMortgageModal}
+            style={customStyles}
+            contentLabel="MortgageResults"
+          >
+            <h2>Results</h2>
+            <h4>
+              Monthly Mortgae Payment:{" "}
+              <strng>{this.state.mortgageRes.monthlyMortgagePayment}</strng>
+            </h4>
+            <h4>
+              Total Payable:
+              <strong>£ {this.state.mortgageRes.totalPayable}</strong>
+            </h4>
+            <h4>House Price: {this.state.housePrice}</h4>
+            <h4>Deposit: {this.state.deposit}</h4>
+            <h4>Mortgage Interest Rate: {this.state.mortgageIntRate}</h4>
+            <h4>Mortgage Length: {this.state.loanTerms}</h4>
+            <button onClick={this.closeMortgageModal}>close</button>
+          </Modal>
+        </div>
       </>
     );
   }
