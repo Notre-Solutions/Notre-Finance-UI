@@ -161,6 +161,7 @@ class App extends React.Component {
       <>
         <h1>Notre Finances</h1>
         <div className="container">
+          <h1>Savings Calculator</h1>
           <form onSubmit={this.sendData}>
             <label>
               Enter your current Savings:
@@ -236,6 +237,7 @@ class App extends React.Component {
         </Modal>
 
         <div className="container">
+          <h1>Mortgage Payments Calculator</h1>
           <form onSubmit={this.sendDataMortgageData}>
             <label>
               House Price:
