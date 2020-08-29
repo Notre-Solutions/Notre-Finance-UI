@@ -59,6 +59,7 @@ class App extends React.Component {
 
   closeModal() {
     this.setState({ showModal: false });
+    this.clearData();
   }
 
   clearData() {
@@ -98,7 +99,6 @@ class App extends React.Component {
     if (results.status === 200) {
       this.setState({ res: results.data, showModal: true });
     }
-    this.clearData();
   }
 
   /**
@@ -135,22 +135,22 @@ class App extends React.Component {
               />
             </label>
             <label>
-              Enter the date you plan to purchase the item:
+              Enter the day you plan to start saving:
               <div>
                 <DatePicker
-                  selected={this.state.plannedPurchasedDate}
-                  onChange={this.handleChangePlannedPurchasedDate}
+                  selected={this.state.startDate}
+                  onChange={this.handleChangeStartDate}
                   dateFormat="yyyy/MM/dd"
                   className="datePicker"
                 />
               </div>
             </label>
             <label>
-              Enter the day you plan to start saving:
+              Enter the date you plan to purchase the item:
               <div>
                 <DatePicker
-                  selected={this.state.startDate}
-                  onChange={this.handleChangeStartDate}
+                  selected={this.state.plannedPurchasedDate}
+                  onChange={this.handleChangePlannedPurchasedDate}
                   dateFormat="yyyy/MM/dd"
                   className="datePicker"
                 />
@@ -177,9 +177,23 @@ class App extends React.Component {
         >
           <h2>Results</h2>
           <h4>
-            Saving Period: {this.state.res.savingPeriod}; Saving Per Month:{" "}
-            {this.state.res.savePerMonth}
+            Saving Period: <strng>{this.state.res.savingPeriod}</strng>
           </h4>
+          <h4>
+            Saving Per Month:
+            <strong>£ {this.state.res.savePerMonth}</strong>
+          </h4>
+          <h4>Current Savings: {this.state.savings}</h4>
+          <h4>Item Cost: {this.state.cost}</h4>
+          <h4>
+            Date you will purchase Item:{" "}
+            {this.state.plannedPurchasedDate.toISOString().slice(0, 10)}
+          </h4>
+          <h4>
+            Date you will begin Saving:{" "}
+            {this.state.startDate.toISOString().slice(0, 10)}
+          </h4>
+
           <button onClick={this.closeModal}>close</button>
         </Modal>
       </>
